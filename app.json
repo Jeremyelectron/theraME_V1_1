@@ -22,9 +22,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.jeremyelectron.theramev11",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.jeremyelectron.theramev11",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"

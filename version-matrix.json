@@ -1,0 +1,57 @@
+{
+  "versions": {
+    "core": "1.0.0",
+    "platforms": {
+      "web": {
+        "version": "1.0.0-web",
+        "lastBuild": null,
+        "deployments": {
+          "staging": null,
+          "production": null
+        }
+      },
+      "ios": {
+        "version": "1.0.0",
+        "buildNumber": "1",
+        "lastBuild": null,
+        "testflight": {
+          "lastUpload": null,
+          "version": null
+        },
+        "appStore": {
+          "lastRelease": null,
+          "version": null
+        }
+      },
+      "android": {
+        "version": "1.0.0",
+        "versionCode": 1,
+        "lastBuild": null,
+        "playStore": {
+          "internal": null,
+          "beta": null,
+          "production": null
+        }
+      }
+    }
+  },
+  "builds": {
+    "lastSuccessful": null,
+    "history": []
+  },
+  "environments": {
+    "development": {
+      "apiUrl": "http://localhost:3000",
+      "features": ["debug", "mockData"]
+    },
+    "staging": {
+      "apiUrl": "https://staging-api.therame.com",
+      "features": ["analytics"]
+    },
+    "production": {
+      "apiUrl": "https://api.therame.com",
+      "features": ["analytics", "monitoring"]
+    }
+  },
+  "lastUpdated": "2024-01-08T00:00:00Z"
+}

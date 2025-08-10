@@ -1,36 +1,39 @@
 #!/bin/bash
 
-# theraME Debug Suite - Debugging tools for all platforms
+# theraME Debug Suite - Enhanced debugging tools for all platforms
 
-# Configuration
-THERAME_ROOT="C:/theramev11"
-MOBILE_DIR="$THERAME_ROOT"
-TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-MAGENTA='\033[0;35m'
-NC='\033[0m'
-
-# Function: Print colored output
-print_color() {
-    local color=$1
-    local message=$2
-    echo -e "${color}${message}${NC}"
-}
-
-# Function: Print header
-print_header() {
-    echo ""
-    print_color "$CYAN" "╔════════════════════════════════════════════════════════════╗"
-    print_color "$CYAN" "║                   theraME Debug Suite                      ║"
-    print_color "$CYAN" "║                      Version 1.0.0                         ║"
-    print_color "$CYAN" "╚════════════════════════════════════════════════════════════╝"
-    echo ""
+# Source the base platform configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../therame-platform.sh" 2>/dev/null || {
+    # Fallback if therame-platform.sh doesn't exist
+    THERAME_ROOT="C:/theramev11"
+    MOBILE_DIR="$THERAME_ROOT"
+    WEB_DIR="$THERAME_ROOT/web-build"
+    TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+    
+    # Colors
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[1;33m'
+    BLUE='\033[0;34m'
+    CYAN='\033[0;36m'
+    MAGENTA='\033[0;35m'
+    NC='\033[0m'
+    
+    print_color() {
+        local color=$1
+        local message=$2
+        echo -e "${color}${message}${NC}"
+    }
+    
+    print_header() {
+        echo ""
+        print_color "$CYAN" "╔════════════════════════════════════════════════════════════╗"
+        print_color "$CYAN" "║                   theraME Debug Suite                      ║"
+        print_color "$CYAN" "║                      Version 1.1.0                         ║"
+        print_color "$CYAN" "╚════════════════════════════════════════════════════════════╝"
+        echo ""
+    }
 }
 
 # Function: Debug menu
@@ -353,6 +356,145 @@ generate_debug_report() {
     print_color "$CYAN" "📊 Debug report saved to: $report_file"
 }
 
+# Function: Enhanced Metro debugging
+debug_metro_enhanced() {
+    print_color "$CYAN" "Metro Bundler Enhanced Debug"
+    print_color "$CYAN" "============================"
+    
+    cd "$MOBILE_DIR"
+    
+    # Kill existing Metro instances
+    print_color "$YELLOW" "Stopping existing Metro instances..."
+    kill_port 8081 2>/dev/null
+    
+    # Clear all Metro caches
+    print_color "$YELLOW" "Clearing Metro cache..."
+    rm -rf "$TMPDIR/metro-*" 2>/dev/null
+    rm -rf "$TEMP/metro-*" 2>/dev/null
+    rm -rf "$HOME/.metro" 2>/dev/null
+    
+    # Create Metro config if missing
+    if [ ! -f "metro.config.js" ]; then
+        print_color "$YELLOW" "Creating Metro config..."
+        cat > metro.config.js << 'EOF'
+const { getDefaultConfig } = require('expo/metro-config');
+
+const config = getDefaultConfig(__dirname);
+
+// Add debugging options
+config.resolver.assetExts.push('db');
+config.transformer.minifierConfig = {
+  keep_fnames: true,
+  mangle: {
+    keep_fnames: true,
+  }
+};
+
+module.exports = config;
+EOF
+    fi
+    
+    # Start Metro with verbose logging
+    print_color "$YELLOW" "Starting Metro with verbose logging..."
+    METRO_LOG_LEVEL=debug npx expo start --clear --dev-client &
+    local metro_pid=$!
+    
+    sleep 5
+    
+    if ps -p $metro_pid > /dev/null; then
+        print_color "$GREEN" "✅ Metro started successfully (PID: $metro_pid)"
+        print_color "$CYAN" "Debug options:"
+        echo "  Press 'j' - Open Chrome DevTools"
+        echo "  Press 'm' - Toggle menu"
+        echo "  Press 'r' - Reload app"
+        echo "  Press 'd' - Open React DevTools"
+        echo ""
+        print_color "$YELLOW" "Metro is running at: http://localhost:8081"
+        print_color "$YELLOW" "Bundler: http://localhost:8081/debugger-ui"
+        
+        read -p "Press enter to stop Metro..."
+        kill $metro_pid 2>/dev/null
+    else
+        print_color "$RED" "❌ Failed to start Metro"
+    fi
+}
+
+# Function: Debug platform-specific issues
+debug_platform() {
+    local platform=${1:-}
+    
+    if [ -z "$platform" ]; then
+        platform=$(get_platform_choice)
+    fi
+    
+    case $platform in
+        ios)
+            print_color "$CYAN" "iOS Debugging"
+            print_color "$CYAN" "============="
+            
+            # Check Xcode
+            if command -v xcodebuild >/dev/null 2>&1; then
+                print_color "$GREEN" "✅ Xcode installed"
+                xcodebuild -version
+            else
+                print_color "$RED" "❌ Xcode not found"
+            fi
+            
+            # Check simulator
+            if command -v xcrun >/dev/null 2>&1; then
+                print_color "$YELLOW" "Available simulators:"
+                xcrun simctl list devices available
+            fi
+            ;;
+            
+        android)
+            print_color "$CYAN" "Android Debugging"
+            print_color "$CYAN" "================="
+            
+            # Check Android SDK
+            if [ -n "$ANDROID_HOME" ]; then
+                print_color "$GREEN" "✅ ANDROID_HOME set: $ANDROID_HOME"
+            else
+                print_color "$RED" "❌ ANDROID_HOME not set"
+            fi
+            
+            # Check ADB
+            if command -v adb >/dev/null 2>&1; then
+                print_color "$GREEN" "✅ ADB installed"
+                adb devices
+            else
+                print_color "$RED" "❌ ADB not found"
+            fi
+            
+            # Check emulators
+            if command -v emulator >/dev/null 2>&1; then
+                print_color "$YELLOW" "Available emulators:"
+                emulator -list-avds
+            fi
+            ;;
+            
+        web)
+            print_color "$CYAN" "Web Debugging"
+            print_color "$CYAN" "============="
+            
+            # Check web build
+            if [ -d "$WEB_DIR" ]; then
+                print_color "$GREEN" "✅ Web build directory exists"
+                du -sh "$WEB_DIR"
+            else
+                print_color "$YELLOW" "⚠️  No web build found"
+            fi
+            
+            # Check webpack config
+            if [ -f "$MOBILE_DIR/webpack.config.js" ]; then
+                print_color "$GREEN" "✅ Webpack config exists"
+            else
+                print_color "$YELLOW" "⚠️  Using default webpack config"
+            fi
+            ;;
+    esac
+}
+
 # Main execution
 main() {
     print_header
@@ -375,6 +517,12 @@ main() {
         fix)
             fix_common_issues
             ;;
+        metro)
+            debug_metro_enhanced
+            ;;
+        platform)
+            debug_platform "$2"
+            ;;
         menu|*)
             while true; do
                 show_debug_menu
@@ -383,7 +531,7 @@ main() {
                 case $choice in
                     1) check_system_info ;;
                     2) analyze_dependencies ;;
-                    3) debug_metro ;;
+                    3) debug_metro_enhanced ;;
                     4) clear_all_caches ;;
                     5) network_diagnostics ;;
                     6) check_port_usage ;;

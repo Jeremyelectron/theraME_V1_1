@@ -2,19 +2,38 @@
 
 # theraME Test Suite - Complete testing for all platforms
 
-# Configuration
-THERAME_ROOT="C:/theramev11"
-MOBILE_DIR="$THERAME_ROOT"
-WEB_DIR="$THERAME_ROOT/web-build"
-TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m'
+# Source the base platform configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../therame-platform.sh" 2>/dev/null || {
+    # Fallback if therame-platform.sh doesn't exist
+    THERAME_ROOT="C:/theramev11"
+    MOBILE_DIR="$THERAME_ROOT"
+    WEB_DIR="$THERAME_ROOT/web-build"
+    TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+    
+    # Colors for output
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[1;33m'
+    BLUE='\033[0;34m'
+    CYAN='\033[0;36m'
+    NC='\033[0m'
+    
+    print_color() {
+        local color=$1
+        local message=$2
+        echo -e "${color}${message}${NC}"
+    }
+    
+    print_header() {
+        echo ""
+        print_color "$CYAN" "╔════════════════════════════════════════════════════════════╗"
+        print_color "$CYAN" "║                   theraME Test Suite                       ║"
+        print_color "$CYAN" "║                      Version 1.1.0                         ║"
+        print_color "$CYAN" "╚════════════════════════════════════════════════════════════╝"
+        echo ""
+    }
+}
 
 # Test results storage
 TEST_RESULTS=()

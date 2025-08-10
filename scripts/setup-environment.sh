@@ -1,33 +1,44 @@
 #!/bin/bash
 
-# theraME Environment Setup - Initial setup and configuration
+# theraME Environment Setup - Complete environment configuration
 
-# Configuration
-THERAME_ROOT="C:/theramev11"
-MOBILE_DIR="$THERAME_ROOT"
-
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
-NC='\033[0m'
-
-# Function: Print colored output
-print_color() {
-    local color=$1
-    local message=$2
-    echo -e "${color}${message}${NC}"
-}
-
-# Function: Print header
-print_header() {
-    echo ""
-    print_color "$CYAN" "╔════════════════════════════════════════════════════════════╗"
-    print_color "$CYAN" "║              theraME Environment Setup                     ║"
-    print_color "$CYAN" "║                    Version 1.0.0                           ║"
-    print_color "$CYAN" "╚════════════════════════════════════════════════════════════╝"
-    echo ""
+# Source the base platform configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../therame-platform.sh" 2>/dev/null || {
+    # Fallback if therame-platform.sh doesn't exist
+    THERAME_ROOT="C:/theramev11"
+    MOBILE_DIR="$THERAME_ROOT"
+    WEB_DIR="$THERAME_ROOT/web-build"
+    BACKUP_ROOT="C:/Users/jerem/source/repos/Jeremyelectron"
+    TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+    
+    # Colors
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[1;33m'
+    CYAN='\033[0;36m'
+    NC='\033[0m'
+    
+    print_color() {
+        local color=$1
+        local message=$2
+        echo -e "${color}${message}${NC}"
+    }
+    
+    print_header() {
+        echo ""
+        print_color "$CYAN" "╔════════════════════════════════════════════════════════════╗"
+        print_color "$CYAN" "║              theraME Environment Setup                     ║"
+        print_color "$CYAN" "║                    Version 1.1.0                           ║"
+        print_color "$CYAN" "╚════════════════════════════════════════════════════════════╝"
+        echo ""
+    }
+    
+    confirm_action() {
+        local message=${1:-"Continue?"}
+        read -p "$message (y/n): " confirm
+        [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]
+    }
 }
 
 # Function: Check and install Node.js
